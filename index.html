@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071b2a">
+  <meta name="description" content="Encuesta breve de experiencia e imagen en ferias laborales de Fundación Collahuasi.">
+  <title>Tu experiencia · Fundación Collahuasi</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body class="survey-body">
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <main class="survey-shell survey-shell-wide">
+    <header class="masthead brand-header">
+      <div class="brand-lockup">
+        <img class="brand-logo" src="assets/logo_fundacion_collahuasi_naranja.png" alt="Fundación Collahuasi">
+        <div class="brand-copy">
+          <div class="brand-kicker">FERIA LABORAL · EMPLEABILIDAD</div>
+          <div class="brand-mini">Tarapacá · Instrumento piloto</div>
+        </div>
+      </div>
+      <div class="masthead-right">SIN NOMBRE NI RUT <span class="dot"></span> RESPUESTA VOLUNTARIA</div>
+    </header>
+
+    <section class="intro intro-grid appear">
+      <div>
+        <div class="eyebrow"><span class="pulse-dot"></span> TU EXPERIENCIA CUENTA</div>
+        <h1>Ayúdanos a <span>mejorar</span> el stand.</h1>
+        <p>Queremos entender por qué te acercaste, cuánto conocías sobre Fundación Collahuasi, qué tan clara fue la orientación recibida y qué imagen general te deja.</p>
+        <div class="pill-line"><span>⏱ Respuesta breve</span><span>✓ 6 preguntas + comentario opcional</span><span>✓ Optimizada para celular</span></div>
+        <p id="demo-banner" class="demo-banner hidden" role="status">VERSIÓN DEMO: tus respuestas se muestran en pantalla, pero <strong>no se guardan</strong>. Configura la base de datos antes de usar esta encuesta en una feria real.</p>
+      </div>
+      <aside class="hero-media-card" aria-label="Visual de referencia">
+        <img src="assets/camion_vista_d.jpeg" alt="Camión minero Komatsu en camino de faena">
+        <div class="hero-media-caption">Programa Aprendices · Prácticas y memorias · Fundación Collahuasi</div>
+      </aside>
+    </section>
+
+    <section class="survey-card appear-delay" id="form-panel">
+      <div class="form-heading"><span class="section-number">00 / 06</span><span>ENCUESTA DE EXPERIENCIA E IMAGEN</span></div>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      <form id="survey-form" novalidate>
+        <fieldset class="question">
+          <legend><span class="q-index">01</span><span>Antes de acercarte al stand, ¿qué sabías de Fundación Collahuasi?</span></legend>
+          <div class="option-grid" id="knowledge-options"></div>
+        </fieldset>
+
+        <fieldset class="question">
+          <legend><span class="q-index">02</span><span>¿Cuál fue el principal motivo por el que te acercaste a nuestro stand?</span></legend>
+          <div class="option-grid" id="reason-options"></div>
+          <div class="conditional-field hidden" id="reason-other-wrap">
+            <label for="reason-other">Cuéntanos cuál fue tu motivo <span class="required-mark">*</span></label>
+            <input id="reason-other" type="text" maxlength="120" minlength="3" autocomplete="off" placeholder="Especifica tu motivo (3 a 120 caracteres)" aria-describedby="reason-other-hint">
+            <div class="field-hint" id="reason-other-hint">No incluyas nombres, RUT, teléfonos ni correos.</div>
+          </div>
+        </fieldset>
+
+        <fieldset class="question">
+          <legend><span class="q-index">03</span><span>¿Qué tan clara fue la orientación que recibiste hoy?</span></legend>
+          <div class="option-grid" id="clarity-options"></div>
+        </fieldset>
+
+        <fieldset class="question">
+          <legend><span class="q-index">04</span><span>Con la información que tienes ahora, ¿qué imagen general te deja Fundación Collahuasi?</span></legend>
+          <p class="field-hint">Esta pregunta mide imagen general. No reemplaza la evaluación de la atención del stand.</p>
+          <div class="option-grid" id="image-options"></div>
+        </fieldset>
+
+        <fieldset class="question">
+          <legend><span class="q-index">05</span><span>¿Qué edad tienes? <small class="muted-inline">(años cumplidos)</small></span></legend>
+          <div class="age-entry"><label for="age-years" class="sr-only">Edad en años cumplidos</label><input type="number" inputmode="numeric" pattern="[0-9]*" min="14" max="100" step="1" id="age-years" placeholder="Ej. 21" aria-describedby="age-help"><span>años</span></div>
+          <p id="age-help" class="field-hint age-hint">Ingresa un número entero entre 14 y 100, o elige no responder.</p>
+          <label class="age-optout"><input type="checkbox" id="age-optout"> Prefiero no responder</label>
+        </fieldset>
+
+        <fieldset class="question">
+          <legend><span class="q-index">06</span><span>¿Con qué género te identificas?</span></legend>
+          <p class="field-hint">Selecciona una alternativa. Puedes elegir «Prefiero no responder».</p>
+          <div class="option-grid two-col" id="gender-options"></div>
+        </fieldset>
+
+        <label class="comment-label" for="comment">¿Qué información te faltó o qué podríamos mejorar? <em>Opcional</em></label>
+        <textarea id="comment" maxlength="500" rows="3" placeholder="Tu comentario nos ayuda a mejorar..."></textarea>
+        <div class="privacy-note" id="privacy-note">No solicitamos nombre, RUT ni correo en esta encuesta.</div>
+        <p role="alert" class="error-text hidden" id="form-error"></p>
+        <button class="primary-button" type="submit" id="send-button">Enviar respuestas <span aria-hidden="true">↗</span></button>
+        <p class="small-note">Esta encuesta mide percepciones de quienes deciden responder; no representa automáticamente a todas las personas asistentes.</p>
+      </form>
+    </section>
+
+    <section class="survey-card success-card hidden" id="success-panel" aria-live="polite">
+      <div class="success-icon">✓</div>
+      <div class="eyebrow">GRACIAS POR PARTICIPAR</div>
+      <h2>Tu opinión impulsa mejoras.</h2>
+      <p id="success-copy">Tu respuesta fue recibida.</p>
+      <div class="success-visual"><img src="assets/camion_vista_1.jpeg" alt="Camión minero en camino de faena"></div>
+      <div id="contact-panel" class="contact-panel hidden">
+        <div class="section-label">OPCIONAL · MANTENTE INFORMADO/A</div>
+        <h3>¿Quieres recibir información de futuras oportunidades?</h3>
+        <p>Este registro es independiente de tu encuesta.</p>
+        <form id="contact-form">
+          <label for="lead-email">Correo electrónico</label><input id="lead-email" type="email" name="email" autocomplete="email" maxlength="254" placeholder="tucorreo@ejemplo.com" required>
+          <label class="check-label"><input type="checkbox" id="lead-consent" required><span>Acepto recibir información sobre actividades y oportunidades de Fundación Collahuasi. He leído el <a id="lead-privacy-link" href="#" target="_blank" rel="noopener noreferrer">aviso de privacidad</a>. Puedo retirar mi autorización posteriormente.</span></label>
+          <p id="lead-error" class="error-text hidden" role="alert"></p>
+          <button class="secondary-button" id="lead-button" type="submit">Quiero recibir información ↗</button>
+        </form>
+      </div>
+      <button class="text-button" type="button" id="restart-button">Responder una nueva encuesta</button>
+    </section>
+
+    <footer class="page-footer"><span>Fundación Collahuasi · Prototipo para GitHub Pages</span><span id="privacy-footer"></span></footer>
+  </main>
+</body>
+</html>

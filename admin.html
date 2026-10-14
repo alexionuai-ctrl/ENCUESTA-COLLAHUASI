@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071b2a">
+<title>Panel de gestión · Fundación Collahuasi</title>
+<link rel="stylesheet" href="styles.css">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="dashboard.js"></script>
+</head>
+<body class="admin-body">
+<div class="ambient ambient-one" aria-hidden="true"></div>
+<header class="dash-header brand-header">
+  <img class="brand-logo brand-logo-small" src="assets/logo_collahuasi_verde.png" alt="Collahuasi">
+  <div>
+    <strong>FUNDACIÓN COLLAHUASI</strong>
+    <small>INTELIGENCIA OPERATIVA · FERIAS LABORALES</small>
+  </div>
+  <div class="header-actions">
+    <span id="mode-pill" class="top-pill">DEMO</span>
+    <a class="nav-link" href="index.html">↗ Encuesta</a>
+    <button id="logout" class="text-button hidden" type="button">Cerrar sesión</button>
+  </div>
+</header>
+<main class="dashboard-shell dashboard-shell-wide">
+<section id="login-screen" class="login-shell hidden">
+  <div class="eyebrow">ÁREA RESTRINGIDA</div>
+  <h1>Acceso al panel</h1>
+  <p>Disponible exclusivamente para integrantes autorizados del equipo.</p>
+  <form id="login-form">
+    <label for="login-email">Correo institucional</label><input id="login-email" type="email" required autocomplete="username" placeholder="nombre@institucion.cl">
+    <label for="login-password">Contraseña</label><input id="login-password" type="password" required autocomplete="current-password" placeholder="••••••••">
+    <p id="login-error" class="error-text hidden" role="alert"></p>
+    <button id="login-button" class="primary-button" type="submit">Ingresar al panel →</button>
+  </form>
+</section>
+<section id="dashboard-screen" class="hidden">
+  <div class="dashboard-top dashboard-top-media">
+    <div>
+      <div class="eyebrow"><span class="pulse-dot"></span> PANEL DE SEGUIMIENTO</div>
+      <h1>Lo que nos dicen <span>los visitantes</span>.</h1>
+      <p>Motivos de visita, conocimiento institucional, claridad de atención, imagen general y segmentación de respuestas.</p>
+      <p class="demo-banner hidden" id="dash-demo">DATOS SIMULADOS. Ninguna cifra del modo demostración representa resultados de una feria real.</p>
+    </div>
+    <aside class="admin-hero-media"><img src="assets/camion_vista_1.jpeg" alt="Camión minero en camino"></aside>
+    <div class="dashboard-tools"><button class="secondary-button" id="refresh" type="button">↻ Actualizar datos</button><button class="primary-button" id="xlsx-responses" type="button">↓ Exportar Excel</button></div>
+  </div>
+
+  <div class="filters">
+    <label>Evento <select id="filter-event"></select></label>
+    <label>Edad <select id="filter-age"><option value="">Todas</option></select></label>
+    <label>Género <select id="filter-gender"><option value="">Todos</option></select></label>
+    <label>Motivo de visita <select id="filter-reason"><option value="">Todos</option></select></label>
+    <label>Desde <input type="date" id="filter-from"></label>
+    <label>Hasta <input type="date" id="filter-to"></label>
+    <button class="text-button" type="button" id="clear-filters">Limpiar filtros</button>
+  </div>
+
+  <div class="dashboard-meta"><span id="last-updated">—</span><span>Denominadores excluyen «No recuerdo», «No recibí orientación» o «No tengo suficiente información» cuando corresponde.</span></div>
+
+  <section class="kpi-grid" aria-label="Indicadores principales">
+    <article class="survey-card kpi-card"><div class="kpi-label">RESPUESTAS</div><div class="kpi-num" id="kpi-responses">—</div><div class="kpi-detail">Registros recibidos</div></article>
+    <article class="survey-card kpi-card"><div class="kpi-label">INTERÉS EN PROGRAMA APRENDICES</div><div class="kpi-num" id="kpi-aprendices">—</div><div class="kpi-detail" id="kpi-aprendices-detail">—</div></article>
+    <article class="survey-card kpi-card"><div class="kpi-label">FAMILIARIDAD PREVIA BAJA</div><div class="kpi-num" id="kpi-awareness">—</div><div class="kpi-detail" id="kpi-awareness-detail">—</div></article>
+    <article class="survey-card kpi-card"><div class="kpi-label">ORIENTACIÓN CLARA</div><div class="kpi-num" id="kpi-clarity">—</div><div class="kpi-detail" id="kpi-clarity-detail">—</div></article>
+    <article class="survey-card kpi-card"><div class="kpi-label">IMAGEN POSITIVA</div><div class="kpi-num" id="kpi-image">—</div><div class="kpi-detail" id="kpi-image-detail">—</div></article>
+    <article class="survey-card kpi-card"><div class="kpi-label">SIN ORIENTACIÓN</div><div class="kpi-num" id="kpi-no-attention">—</div><div class="kpi-detail" id="kpi-no-attention-detail">—</div></article>
+  </section>
+
+  <div class="chart-grid">
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">01 · DEMANDA</div><h2>Motivos de visita</h2></div></div>
+      <div id="reason-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">02 · SEGMENTO CLAVE</div><h2>Motivos de visita · 18 a 24 años</h2></div></div>
+      <div id="reason-young-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">03 · POSICIONAMIENTO</div><h2>Conocimiento previo de la Fundación</h2></div></div>
+      <div id="knowledge-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">04 · EXPERIENCIA</div><h2>Claridad de la orientación</h2></div></div>
+      <div id="clarity-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">05 · IMAGEN</div><h2>Imagen general de Fundación Collahuasi</h2></div></div>
+      <div id="image-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">06 · CARACTERIZACIÓN</div><h2>Distribución por edad</h2></div><span class="panel-sub" id="age-detail"></span></div>
+      <div id="age-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">07 · CARACTERIZACIÓN</div><h2>Distribución por género</h2></div></div>
+      <div id="gender-bars" class="bar-list"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">08 · RELACIÓN ENTRE VARIABLES</div><h2>Orientación clara por edad</h2></div><span class="panel-sub">No mostrar tasas de grupos con n &lt; 5</span></div>
+      <div id="cross-bars" class="bar-list"></div>
+    </section>
+    <section class="panel comments-span">
+      <div class="panel-heading"><div><div class="eyebrow">09 · CONTINUIDAD</div><h2>Comentarios abiertos</h2></div><span class="panel-sub" id="comments-total"></span></div>
+      <div class="comments-box" id="comments-list"></div>
+    </section>
+  </div>
+
+  <section class="panel insight-panel">
+    <div class="panel-heading"><div><div class="eyebrow">DIAGNÓSTICO OPERATIVO</div><h2>Qué podemos aprender</h2></div></div>
+    <p id="insight-text"></p>
+    <p class="method-note">Las respuestas son voluntarias: no permiten inferir causalidad, representatividad ni tasa de cobertura sin un conteo independiente de invitaciones y asistentes.</p>
+  </section>
+
+  <section class="panel contacts-panel">
+    <div class="panel-heading"><div><div class="eyebrow">VINCULACIÓN VOLUNTARIA, EN BASE SEPARADA</div><h2>Solicitudes de contacto</h2></div></div>
+    <div class="contacts-content"><div><div id="contacts-count" class="contact-count">—</div><p>Registros con autorización. No están vinculados a una respuesta individual de percepción.</p></div><button id="xlsx-contacts" class="secondary-button" type="button">↓ Exportar contactos (datos personales)</button></div>
+    <p class="method-note">No utilizar estos correos fuera de la finalidad informada. La exportación debe quedar sujeta a los procedimientos de custodia de datos de la Fundación.</p>
+  </section>
+
+  <footer class="page-footer"><span>Panel de uso interno · Actualización automática cada 30 segundos</span><span>Instrumento piloto: revisar validez y privacidad antes de producción</span></footer>
+</section>
+</main>
+</body>
+</html>
